@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Restaurant;
 
 class RestaurantController extends Controller
 {
@@ -13,7 +14,9 @@ class RestaurantController extends Controller
      */
     public function index()
     {
-       return view('restaurants.index');
+        $restaurants = Restaurant::get();
+        
+        return view('restaurants.index', compact('restaurants'));
     }
 
     /**
@@ -23,7 +26,8 @@ class RestaurantController extends Controller
      */
     public function create()
     {
-        //
+        return view('restaurants.create');
+
     }
 
     /**
@@ -32,9 +36,14 @@ class RestaurantController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request){
+        $restaurant = new Restaurant;
+        $restaurant->name = $request->name;
+        $restaurant->adress = $request->adress;
+        $restaurant->description = $request->description;
+
+        $restaurant->save();
+        return redirect()->back();
     }
 
     /**
@@ -56,7 +65,9 @@ class RestaurantController extends Controller
      */
     public function edit($id)
     {
-        //
+        $restaurants = Restaurant::findOrFail($id);
+
+        return view('restaurants.edit',compact('restaurants'));
     }
 
     /**
@@ -68,7 +79,11 @@ class RestaurantController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $updateData = $request->validate([
+            'name' => 'required|max:255',
+        ]);
+        Restaurant::whereId($id)->update($updateData);
+        return redirect('/index')->with('completed', 'Restaurant has been updated');
     }
 
     /**
